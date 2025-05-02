@@ -21,7 +21,7 @@ _____________
 Entendendo o problema
 ----------
 
-Imagine que você está preparando uma mochila para fazer uma trilha. Você tem vários itens disponíveis, cada um com um peso e um valor de utilidade, mas sua mochila, assim como qualquer outra, tem uma capacidade limitada.
+Imagine que você está preparando uma mochila para fazer uma trilha. Você tem vários itens disponíveis, cada um com um peso e um valor, mas sua mochila, assim como qualquer outra, tem uma capacidade limitada.
 
 Como escolher os itens para levar de forma a **maximizar o valor total sem ultrapassar o peso máximo**? O *Problema da Mochila Binária* é um problema clássico de otimização combinatória que consiste em escolher um subconjunto de itens para colocar em uma mochila, respeitando um limite de peso, de modo a maximizar o valor total carregado. Ele recebe esse nome porque, para cada item, você deve tomar uma decisão binária: **ou coloca o item na mochila (1), ou não coloca (0)** — não é permitido fracionar os itens.
 
@@ -566,7 +566,7 @@ typedef struct {
     int w;           // capacidade da mochila
     int n;           // número total de itens
     int *peso;       // vetor de pesos
-    int *valor;        // vetor de valores
+    int *valor;      // vetor de valores
     int **dp;        // tabela dp de (n+1) x (w+1)
 } knapsack_problem;
 ```
@@ -574,7 +574,7 @@ typedef struct {
 A `md struct` reúne todos os dados do problema e a matriz `md (n+1) × (w+1)` que será preenchida.*
 
 ??? Checkpoint
-Quanto a matriz ocupa se `md n = 200` e `md w = 5000`?
+Quanto de memória a matriz ocupa se `md n = 200` e `md w = 5000`?
 
 ::: Gabarito
 `md 201 × 5001 × 4` bytes ≈ **4,02 MB**.
@@ -607,7 +607,6 @@ Você tambem pode usar `md memset` para inicializar uma sequência de dados com 
 :::
 ???
 
-**Preenchendo a tabela dinâmica**
 **Preenchendo a tabela dinâmica**
 
 Agora que a matriz `md dp` foi alocada e inicializada com zeros, vamos preenchê-la **de baixo para cima**, seguindo o raciocínio da programação dinâmica.
@@ -778,3 +777,10 @@ Os itens escolhidos são `md chosen = [0, 1, 1, 0, 1]`, ou seja, os itens de ín
 Portanto, o valor ótimo é `md 29`, e a mochila ficou cheia.
 :::
 ???
+
+Conclusão
+----------
+
+O problema da mochila binária ilustra o cerne da otimização combinatória, equilibrando valor máximo e restrições de capacidade. Através das abordagens apresentadas, vimos como algoritmos evoluem para lidar com complexidade.
+
+Programação Dinâmica não é só uma técnica — é ainda uma mentalidade para decompor problemas complexos em subproblemas gerenciáveis, armazenando soluções parciais para eficiência.
