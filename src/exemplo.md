@@ -6,7 +6,35 @@ Subtítulo
 
 Imagine que você está preparando uma mochila para fazer uma trilha. Você tem vários itens disponíveis, cada um com um peso e um valor de utilidade, mas sua mochila, assim como qualquer outra, tem uma capacidade limitada. 
 
-Como escolher os itens para levar de forma a **maximizar o valor total sem ultrapassar o peso máximo**? Esse é o clássico *Problema da Mochila Binária*, que trabalharemos ao longo desse handout.
+Como escolher os itens para levar de forma a **maximizar o valor total sem ultrapassar o peso máximo**? O *Problema da Mochila Binária* é um problema clássico de otimização combinatória que consiste em escolher um subconjunto de itens para colocar em uma mochila, respeitando um limite de peso, de modo a maximizar o valor total carregado. Ele recebe esse nome porque, para cada item, você deve tomar uma decisão binária: **ou coloca o item na mochila (1), ou não coloca (0)** — não é permitido fracionar os itens.
+
+
+## Definição Objetiva do Problema
+
+Dado um conjunto de `n` itens e uma mochila com capacidade máxima `W`, o objetivo é **escolher um subconjunto de itens** que:
+
+1. **Maximize a soma dos valores dos itens escolhidos**;
+2. **Tenha soma dos pesos que não ultrapasse a capacidade da mochila**.
+
+Essa é uma típica situação de **trade-off**: quanto mais itens de valor você quiser levar, mais peso sua mochila vai ter — e seu espaço é limitado.
+
+## Definição Detalhada
+
+**Entradas**:  
+- Capacidade máxima da mochila: `W` (por exemplo, 6 kg)  
+- `n` itens, cada um com:
+  * Peso `w[i]`
+  * Valor `v[i]`
+
+**Saída desejada**:  
+- Conjunto de itens a serem levados
+
+**Restrição**:  
+- A soma dos pesos dos itens escolhidos ≤ `W`
+
+**Objetivo**:  
+- Maximizar a soma dos valores dos itens escolhidos
+
 
 ??? Checkpoint
 
