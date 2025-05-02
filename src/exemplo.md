@@ -21,7 +21,7 @@ _____________
 Entendendo o problema
 ----------
 
-Imagine que você está preparando uma mochila para fazer uma trilha. Você tem vários itens disponíveis, cada um com um peso e um valor de utilidade, mas sua mochila, assim como qualquer outra, tem uma capacidade limitada.
+Imagine que você está preparando uma mochila para fazer uma trilha. Você tem vários itens disponíveis, cada um com um peso e um valor, mas sua mochila, assim como qualquer outra, tem uma capacidade limitada.
 
 Como escolher os itens para levar de forma a **maximizar o valor total sem ultrapassar o peso máximo**? O *Problema da Mochila Binária* é um problema clássico de otimização combinatória que consiste em escolher um subconjunto de itens para colocar em uma mochila, respeitando um limite de peso, de modo a maximizar o valor total carregado. Ele recebe esse nome porque, para cada item, você deve tomar uma decisão binária: **ou coloca o item na mochila (1), ou não coloca (0)** — não é permitido fracionar os itens.
 
