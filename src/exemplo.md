@@ -777,3 +777,10 @@ Os itens escolhidos são `md chosen = [0, 1, 1, 0, 1]`, ou seja, os itens de ín
 Portanto, o valor ótimo é `md 29`, e a mochila ficou cheia.
 :::
 ???
+
+Conclusão
+----------
+
+O problema da mochila binária ilustra o cerne da otimização combinatória, equilibrando valor máximo e restrições de capacidade. Através das abordagens apresentadas, vimos como algoritmos evoluem para lidar com complexidade.
+
+Programação Dinâmica não é só uma técnica — é ainda uma mentalidade para decompor problemas complexos em subproblemas gerenciáveis, armazenando soluções parciais para eficiência.
