@@ -566,7 +566,7 @@ typedef struct {
     int w;           // capacidade da mochila
     int n;           // número total de itens
     int *peso;       // vetor de pesos
-    int *valor;        // vetor de valores
+    int *valor;      // vetor de valores
     int **dp;        // tabela dp de (n+1) x (w+1)
 } knapsack_problem;
 ```
@@ -574,7 +574,7 @@ typedef struct {
 A `md struct` reúne todos os dados do problema e a matriz `md (n+1) × (w+1)` que será preenchida.*
 
 ??? Checkpoint
-Quanto a matriz ocupa se `md n = 200` e `md w = 5000`?
+Quanto de memória a matriz ocupa se `md n = 200` e `md w = 5000`?
 
 ::: Gabarito
 `md 201 × 5001 × 4` bytes ≈ **4,02 MB**.
@@ -607,7 +607,6 @@ Você tambem pode usar `md memset` para inicializar uma sequência de dados com 
 :::
 ???
 
-**Preenchendo a tabela dinâmica**
 **Preenchendo a tabela dinâmica**
 
 Agora que a matriz `md dp` foi alocada e inicializada com zeros, vamos preenchê-la **de baixo para cima**, seguindo o raciocínio da programação dinâmica.
