@@ -1,30 +1,10 @@
-O Problema da Mochila Binária
+Título
 ======
 
 Subtítulo
 ---------
 
-Imagine que você está preparando uma mochila para fazer uma trilha. Você tem vários itens disponíveis, cada um com um peso e um valor de utilidade, mas sua mochila, assim como qualquer outra, tem uma capacidade limitada. 
-
-Como escolher os itens para levar de forma a **maximizar o valor total sem ultrapassar o peso máximo**? Esse é o clássico *Problema da Mochila Binária*, que trabalharemos ao longo desse handout.
-
-??? Checkpoint
-
-Para uma `md mochila de 6kg`, qual combinação de itens você escolheria? Por quê?
-| Item     | Peso     | Valor    |
-|----------|----------|----------|
-|Lanterna  |2 kg       | 5        |
-|Água      |3 kg       | 10       |
-|Comida    |4 kg       |12        |
-|Kit de Primeiros Socorros |1 kg | 8       |
-|Câmera    |2 kg       |6        |
-
-::: Gabarito
-Entre todas, a combinação `md kit de primeiros socorros + comida` é a combinação que apresenta maior valor total ($12 + 8 = 20$) dentro da limitação da mochila ($1 + 4 \leq 6$ kg).
-:::
-
-???
-
+Para criar um parágrafo, basta escrever um texto contínuo, sem pular linhas.
 
 Você também pode criar
 
