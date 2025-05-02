@@ -1,41 +1,15 @@
-O Problema da Mochila Binária
-======
-::: Resumo desta aula
-Não leia se estiver vendo este handout pela primeira vez. Estes resumos servem apenas para consulta rápida depois de concluir todos os checkpoints.
-- **[Resumo da Mochila 0‑1](resumo.html)**
-:::
-
-Subtítulo
----------
-
-Imagine que você está preparando uma mochila para fazer uma trilha. Você tem vários itens disponíveis, cada um com um peso e um valor de utilidade, mas sua mochila, assim como qualquer outra, tem uma capacidade limitada. 
-
-Como escolher os itens para levar de forma a **maximizar o valor total sem ultrapassar o peso máximo**? Esse é o clássico *Problema da Mochila Binária*, que trabalharemos ao longo desse handout.
-
-??? Checkpoint
-
-Para uma `md mochila de 6kg`, qual combinação de itens você escolheria? Por quê?
-| Item     | Peso     | Valor    |
-|----------|----------|----------|
-|Lanterna  |2 kg       | 5        |
-|Água      |3 kg       | 10       |
-|Comida    |4 kg       |12        |
-|Kit de Primeiros Socorros |1 kg | 8       |
-|Câmera    |2 kg       |6        |
-
-::: Gabarito
-Entre todas, a combinação `md kit de primeiros socorros + comida` é a combinação que apresenta maior valor total ($12 + 8 = 20$) dentro da limitação da mochila ($1 + 4 \leq 6$ kg).
-:::
-
-???
-
-## Implementações do Algoritmo da Mochila Binária
+# Implementações do Algoritmo da Mochila Binária
 
 *Recursão com memorização × tabela 2‑D em C, explicadas fora do código.*
 
-## Implementação Recursiva Top‑Down (Memo)
+::: Resumo desta aula
+Não leia se estiver vendo este handout pela primeira vez. Estes resumos servem apenas para consulta rápida depois de concluir todos os checkpoints.
+- **[Resumo da Mochila 0‑1](resumo.html)**
 
-### Esqueleto em pseudocódigo
+:::
+## 5. Implementação Recursiva Top‑Down (Memo)
+
+### 5.1 Esqueleto em pseudocódigo
 
 ```text
 solve(i, P):
@@ -57,7 +31,7 @@ Cada par `(i,P)` é guardado após o primeiro cálculo; as chamadas seguintes ap
 :::
 ???
 
-### Declarações em C
+### 5.2 Declarações em C
 
 ```c
 #define MAXN 110
@@ -69,7 +43,7 @@ char vis[MAXN][MAXP];
 int n;
 ```
 
-### Função `solve`
+### 5.3 Função `solve`
 
 ```c
 long long solve(int i, int P){
@@ -99,9 +73,9 @@ Espaço $O(nC)$ para guardar `dp` e `vis`.
 
 ---
 
-## Implementação Bottom‑Up (Tabela 2‑D)
+## 6. Implementação Bottom‑Up (Tabela 2‑D)
 
-### Estrutura fundamental
+### 6.1 Estrutura fundamental
 
 ```c
 typedef struct {
@@ -123,7 +97,7 @@ Quanto a matriz ocupa se `n = 200` e `C = 5000`?
 :::
 ???
 
-### Inicialização da tabela
+### 6.2 Inicialização da tabela
 
 ??? Exercício ✏️
 Implemente ` init_dp_zeros(int **dp, int rows, int cols)` para zerar todos os elementos da matriz.
@@ -137,7 +111,7 @@ static void init_dp_zeros(int **dp,int rows,int cols){
 :::
 ???
 
-### Preenchendo a tabela dinâmica
+### 6.3 Preenchendo a tabela dinâmica
 
 ```c
 void knapsack_solve(knapsack_problem *kp){
@@ -157,7 +131,7 @@ void knapsack_solve(knapsack_problem *kp){
 
 *Para cada item `i`, a linha `i` deriva da linha `i-1`: se o item cabe, comparamos incluir com não incluir; caso contrário, copiamos o valor anterior.*
 
-### Reconstrução do subconjunto
+### 6.4 Reconstrução do subconjunto
 
 ```c
 void knapsack_reconstruct(const knapsack_problem *kp, int *chosen){
@@ -175,7 +149,7 @@ void knapsack_reconstruct(const knapsack_problem *kp, int *chosen){
 
 *A descida da última linha até a primeira identifica quais itens alteraram o valor da solução — esses são os selecionados. O vetor `chosen` recebe 1 para itens escolhidos e 0 caso contrário.*
 
-### `main` de demonstração
+### 6.5 `main` de demonstração
 
 ```c
 int main(void){
