@@ -1,23 +1,5 @@
 O Problema da Mochila Binária
 ==============================
-
-
-<details>
-<summary>
-<span style="font-weight: bold; font-size: 24px; font-family: 'Open Sans', 'Symbola', 'sans-serif'">Resumo desta aula</span>
-</summary>
-
-<span style="color: red; font-weight: bold;">
-Não leia se estiver vendo este handout pela primeira vez.
-</span> 
-Estes resumos são para consulta rápida <em>depois</em> de passar pelo handout.
-
-- [Problema da Mochila Binária](resumo.html)
-</details>
-
-_____________
-
-
 Entendendo o problema
 ----------
 
@@ -28,7 +10,7 @@ Como escolher os itens para levar de forma a **maximizar o valor total sem ultra
 
 ## Definição Objetiva do Problema
 
-Dado um conjunto de `n` itens e uma mochila com capacidade máxima `W`, o objetivo é **escolher um subconjunto de itens** que:
+Dado um conjunto de `md n` itens e uma mochila com capacidade máxima `md W`, o objetivo é **escolher um subconjunto de itens** que:
 
 1. **Maximize a soma dos valores dos itens escolhidos**;
 2. **Tenha soma dos pesos que não ultrapasse a capacidade da mochila**.
@@ -38,16 +20,16 @@ Essa é uma típica situação de **trade-off**: quanto mais itens de valor voc�
 ## Definição Detalhada
 
 **Entradas**:  
-- Capacidade máxima da mochila: `W` (por exemplo, 6 kg)  
-- `n` itens, cada um com:
-  * Peso `w[i]`
-  * Valor `v[i]`
+- Capacidade máxima da mochila: `md W` (por exemplo, 6 kg)  
+- `md n` itens, cada um com:
+  * Peso `md w[i]`
+  * Valor `md v[i]`
 
 **Saída desejada**:  
 - Conjunto de itens a serem levados
 
 **Restrição**:  
-- A soma dos pesos dos itens escolhidos ≤ `W`
+- A soma dos pesos dos itens escolhidos ≤ `md W`
 
 **Objetivo**:  
 - Maximizar a soma dos valores dos itens escolhidos
@@ -83,11 +65,7 @@ Cada item tem duas possbilidades:
 
 ??? Checkpoint
 
-Se você tem `md 5 itens`, quantas combinações você teria? E se tiver `md n itens`?
-
-::: Dica
-Pense para 1 item. Depois para 2. E depois para 3. Você consegue identificar um padrão?
-:::
+Considerando que cada item tem o estado `md pegar` e `md não pegar`: Se você tem `md 5 itens`, quantas combinações você teria ao fim do processo? E se tiver `md n itens`?
 
 ::: Gabarito
 Para **5 itens**, você teria **32** combinações. Para **n itens**, você teria **$2^n$** combinações.
