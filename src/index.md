@@ -407,6 +407,16 @@ $$
 
 Ok, nós construímos toda a tabela `md dp` com programação dinâmica e descobrimos qual é o valor máximo que conseguimos carregar na mochila — e ele estará na célula **`md dp[n][w]`**.
 
+Se nossos itens forem:
+
+| Item | Peso | Valor |
+| ---- | ---- | ----- |
+| A    | 2    | 3     |
+| B    | 3    | 5     |
+| C    | 4    | 9     |
+
+Teremos a seguinte tabela:
+
 | Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
 | ---: | ----: | ----: | -----: | ----: | ----: | ----: |
 |    - |     0 |     0 |      0 |     0 |     0 |     0 |
@@ -424,13 +434,22 @@ Comece partindo da última célula da tabela (`md dp[3][5] = 9`). Com que célul
 Devemos comparar o valor de `md dp[3][5] = 9` com a célula acima (`md dp[2][5] = 8`). Como o valor mudou, sabemos que C foi escolhido. 
 ???
 
+??? Checkpoint
+E agora como descobrir, a partir da tabela, se o item B foi ou não foi levado? Quais células devemos comparar?
+::: Dica 1
+Se sabemos que o item C foi levado, precisamos reduzir a capacidade da mochila para a capacidade restante. 
+:::
+::: Dica 2
+Após reduzir a capacidade da mochila, devemos olhar para a coluna w = w - peso[item escolhido]. Nesse exemplo, w = 5 - 4 = 1.
+:::
+::: Gabarito
+Devemos comparar as células `md dp[2][1] = 0` e `md dp[1][1] = 0`. Como o valor não mudou, o item B não foi escolhido.
+:::
+???
 
-###########################################################
-Correção implementada até aqui
+Por fim, como o item B não foi escolhido, para saber se o item A foi escolhido basta comparar o valor da célula `md dp[1][1]` com `md dp[0][1]`. Como o valor não mudou, o item A também não foi escolhido. 
 
-##########################################################
-
-Partimos da última célula da tabela, `md dp[n][w]`, e vamos subindo, linha por linha. A cada passo, comparamos o valor atual com o valor logo acima:
+Com isso, conseguimos chegar em um procedimento para a reconstrução da solução ótima. Partimos da última célula da tabela, `md dp[n][w]`, e vamos subindo, linha por linha. A cada passo, comparamos o valor atual com o valor logo acima:
 
 1. Se `md dp[i][w]` = `md dp[i-1][w]`, o item i não foi incluído na mochila.
 2. Se `md dp[i][w]` ≠ `md dp[i-1][w]`, o item i foi incluído. Nesse caso:
@@ -442,61 +461,74 @@ Partimos da última célula da tabela, `md dp[n][w]`, e vamos subindo, linha por
 
 ??? Checkpoint
 
-Tente fazer o backtracking para o exemplo que construímos. Aqui está a tabela que chegamos:
+Para os seguintes itens e tabela, tente fazer a reconstrução da solução ótima e descubra quais itens foram incluídos.
 
-| Item | i | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
-| ---: | -: | ----: | ----: | -----: | ----: | ----: | ----: |
-|    - | 0 |     0 |     0 |      0 |     0 |     0 |     0 |
-|    A | 1 |     0 |     0 |      4 |     4 |     4 |     4 |
-|    B | 2 |     0 |     0 |      4 |     5 |     5 |     9 |
-|    C | 3 |     0 |     0 |      4 |     5 |     6 |     9 |
+| Item | Peso | Valor |
+| ---- | ---- | ----- |
+| A    | 1    | 4     |
+| B    | 2    | 3     |
+| C    | 3    | 6     |
 
+Teremos a seguinte tabela:
+
+| Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    - |     0 |     0 |      0 |     0 |     0 |     0 |
+|    A |     0 |     4 |      4 |     4 |     4 |     4 |
+|    B |     0 |     4 |      4 |     7 |     7 |     7 |
+|    C |     0 |     4 |      4 |     7 |    10 |    10 |
 ::: Gabarito
-Considere a célula dp[3][5] = 9
 
-* Comparando com dp[2][5] = 9
-  → os valores são iguais → o item C (linha 3) não foi incluído
-* Subimos para dp[2][5] = 9, comparamos com dp[1][5] = 4
+Iniciamos em `md dp[3][5] = 10`
 
-  * os valores são diferentes → o item B (linha 2) foi incluído
+- Comparar `md dp[3][5] = 10` com `md dp[2][5] = 7`→ Como são diferentes, o item 3 ( C ) foi incluído → Atualiza: w = 5 - 3 = 2, i = 2
 
-  - Adicionamos B à lista
-  - Subtraímos seu peso: w = 5 - peso[2] = 5 - 3 = 2
-  - Subimos para i = 1
-* Em dp[1][2] = 4, comparamos com dp[0][2] = 0
+- Comparar `md dp[2][2] = 4 `com `md dp[1][2] = 4`→ Como são iguais, o item 2 (B) não foi incluído → Mantém: w = 2, i = 1
 
-  * valor diferente → o item A foi incluído
+- Comparar `md dp[1][2] = 4 `com `md dp[0][2] = 0` → Como são diferentes, o item 1 (A) foi incluído → Atualiza: w = 2 - 1 = 1, i = 0 → fim da reconstrução
 
-  - Adicionamos A à lista
-  - Subtraímos w = 2 - peso[1] = 2 - 2 = 0
-  - Fim do processo
-* **Itens incluídos: A e B**
-  :::
+Portanto:
 
+Itens incluídos: **A** e **C**
+:::
 ???
 
 A abordagem de programação dinâmica para o problema da mochila binária nos permite encontrar a melhor solução possível sem precisar testar todas as combinações. Em vez disso, vamos construindo respostas parciais, armazenando os melhores valores obtidos para cada quantidade de itens e para cada capacidade da mochila.
 
-Ao final do preenchimento da tabela, conseguimos recuperar o valor máximo que pode ser carregado e, com o auxílio do backtracking, também conseguimos descobrir quais itens foram escolhidos para compor essa solução.
+Ao final do preenchimento da tabela, conseguimos recuperar o valor máximo que pode ser carregado e, com a reconstrução da solução ótima, também conseguimos descobrir quais itens foram escolhidos para compor essa solução.
 
 ??? Checkpoint
 
-Prometo que esse checkpoint é curto! Vamos só pensar nas vantagens desse método?
+Já vimos que esse método permite a resolução do problema a partir de subproblemas menores. Ou seja, não precisamos testar todas as combinações de itens. Explique por que isso é uma melhoria em relação à complexidade de tempo quando comparado com o método da força bruta. 
 
 ::: Gabarito
 
-1. Reaproveita subsoluções. Ou seja, se você quisesse adicionar mais um item, bastava adicionar uma linha na tabela, sem precisar refazer todos os cálculos;
-2. Funciona bem para capacidades e quantidades de itens moderadas;
-3. Sempre encontra a melhor combinação possível, ou seja, o valor máximo.
-4. Tem complexidade de tempo e memória O(n × W), o que é suficiente para a maioria dos casos práticos.
+O método da força bruta testa todas as combinações possíveis de itens, o que resulta em uma complexidade de tempo exponencial:
+
+$$
+O (2^n)
+$$
+
+
+Isso ocorre porque, para cada item, existem duas escolhas: incluí-lo ou não.
+
+Já a programação dinâmica evita repetir os mesmos cálculos, resolvendo cada subproblema uma única vez e armazenando seus resultados em uma tabela. No caso da mochila binária com n itens e capacidade W, a complexidade de tempo é:
+$$
+O(n⋅W)
+$$
+
+Essa abordagem é muito mais eficiente, especialmente quando n é grande, pois transforma um problema exponencial em um problema polinomial, aproveitando a sobreposição de subproblemas e o princípio da optimalidade.
 
 :::
 
 ???
 
-Apesar de ser um pouco mais trabalhoso de implementar, esse método tem uma eficiência muito superior à força bruta, com complexidade de tempo O(n × w), onde n é o número de itens e w é a capacidade da mochila.
+Apesar de ser um pouco mais trabalhoso de implementar, esse método tem uma eficiência muito superior à força bruta e sempre garante as respostas corretas. Suas principais vantagens são:
 
-A tabela que usamos também ocupa memória proporcional a n × w, o que funciona bem para entradas de tamanho moderado. Para valores muito grandes, existem otimizações que reduzem o uso de memória — mas o raciocínio por trás continua sendo o mesmo.
+1. Reaproveita subsoluções. Ou seja, se você quiser adicionar mais um item, basta adicionar uma linha na tabela, sem precisar refazer todos os cálculos;
+2. Funciona bem para capacidades e quantidades de itens moderadas;
+3. Sempre encontra a melhor combinação possível, ou seja, o valor máximo.
+4. Tem complexidade de tempo e memória *O(n⋅W)*, o que é suficiente para a maioria dos casos práticos. Para valores muito grandes, existem otimizações que reduzem o uso de memória — mas o raciocínio por trás continua sendo o mesmo.
 
 Implementações do Algoritmo da Mochila Binária
 --------------------------------
