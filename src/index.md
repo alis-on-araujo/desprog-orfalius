@@ -176,151 +176,259 @@ Na próxima abordagem, vamos ver como a programação dinâmica consegue garanti
 Programação Dinâmica (Tabela Dinâmica)
 ------------------------------------------
 
-Imagine que você está resolvendo o problema da mochila e, a cada nova combinação de itens, precisa recalcular tudo do zero. Repetir esse trabalho é cansativo — e ineficiente. É como tentar lembrar um número de telefone toda vez que vai ligar, em vez de simplesmente salvá-lo na agenda.
-
-A programação dinâmica surge para resolver isso. Ela parte do princípio de que problemas grandes podem ser resolvidos a partir de subproblemas menores. Ou seja, se já sabemos a melhor solução para uma mochila de 3kg com 2 itens, podemos reaproveitar essa informação para resolver casos maiores, como 4kg com 3 itens.
-
-No caso da mochila binária, a técnica consiste em preencher uma tabela que guarda, para cada combinação de item e capacidade, qual o melhor valor possível até aquele ponto. Assim, vamos construindo a solução ideal aos poucos, sem precisar recalcular.
-
-**Como funciona a tabela**
-
-Vamos imaginar o problema onde temos a mochila com **`md capacidade = w`** e devemos escolher entre  **`md n itens`**. Para construir a tabela `md dp`, devemos ter:
-
-* n + 1 linhas (uma linha para cada item, de 0 a n);
-* w + 1 colunas (uma coluna para cada capacidade da mochila, de 0 a w).
-* O preenchimento da tabela começa com 0 e vai sendo atualizado com os melhores valores possíveis em cada célula.
-
-Pode parecer óbvio, mas não custa lembrar: se nenhum item é adicionado, o valor total da mochila é zero. Se nenhum item cabe na mochila, seu valor também é zero.
-
-A célula `md dp[i][w]` armazena o melhor valor total possível usando os primeiros i itens e uma mochila de capacidade w.
-
-A ideia é decidir, para cada item:
-
-1. Não levar o item → mantemos a solução anterior: `md dp[i][w] = dp[i-1][w]`;
-2. Levar o item, se couber → somamos o valor dele com a melhor solução para o espaço restante: `md dp[i][w] = valor[i] + dp[i-1][w - peso[i]]`.
-
-Ou seja, para cada célula da tabela, usamos a fórmula:
-
-$$
-dp[i][w]=max(dp[i−1][w], valor[i] + dp[i−1][w−peso[i]])
-$$
-
-!!! Aviso
-Note que `md dp[i−1][w−peso[i]]` pode estar fora do range da tabela. Nesse caso, considere `md dp[i][w] = dp[i−1][w]`.
-
-Além disso, é importante destacar que, para a linha i, consideramos **todos os itens até o item i**, ou seja, essa solução considera **subconjuntos de itens**.
-!!!
+Até agora, tentamos resolver o problema da mochila binária testando diversas combinações e, a cada nova combinação de itens, precisamos recalcular tudo do zero. Mas será que a gente realmente precisa refazer os cálculos toda vez?
 
 ??? Checkpoint
 
-Ok, sabemos que pode estar difícil de visualizar esse método, então vamos construir essa tabela juntos, com um exemplo prático.
+Imagine que você já calculou qual o maior valor possível que pode ser carregado com uma mochila de 3kg usando os dois primeiros itens. Agora você precisa resolver o mesmo problema, mas com 4kg e três itens.
 
-Vamos supor uma mochila com capacidade `md w = 5`. Considere ainda que as entradas são:
-
-| Item | Peso | Valor |
-| ---- | ---- | ----- |
-| A    | 2    | 4     |
-| B    | 3    | 5     |
-| C    | 4    | 6     |
-
-Vamos montar a tabela dp, com 4 linhas (0 a 3 itens → linha 0 representa “nenhum item”) e 6 colunas (capacidades de 0 a 5). Para fins didáticos, vamos apenas adicionar uma coluna à esquerda identificando os "nomes" dos itens para facilitar a visualização e referência.
-
-|                                                                         Item | i | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
-| ---------------------------------------------------------------------------: | -: | ----: | ----: | -----: | ----: | ----: | ----: |
-|                                                                            - | 0 |       |       |        |       |       |       |
-|                                                                            A | 1 |       |       |        |       |       |       |
-|                                                                            B | 2 |       |       |        |       |       |       |
-|                                                                            C | 3 |       |       |        |       |       |       |
-| Começamos preenchendo a primeira linha e a primeira coluna com zeros, pois: |   |       |       |        |       |       |       |
-
-- Nenhum item → valor total é zero
-- Mochila de capacidade zero → não dá pra levar nada
-
-| Item | i | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
-| ---: | -: | ----: | ----: | -----: | ----: | ----: | ----: |
-|    - | 0 |     0 |     0 |      0 |     0 |     0 |     0 |
-|    A | 1 |     0 |       |        |       |       |       |
-|    B | 2 |     0 |       |        |       |       |       |
-|    C | 3 |     0 |       |        |       |       |       |
-
-Agora, vamos preencher linha por linha, considerando se vale a pena ou não incluir o item através de:
-
-$$
-dp[i][w]=max(dp[i−1][w], valor[i] + dp[i−1][w−peso[i]])
-$$
-
-* **Até o Item A:**
-
-Para cada coluna (capacidade w):
-
-- Se w < 2 → não cabe o item → copia o de cima → dp[1][w] = dp[0][w]
-- Se w ≥ 2 → compara as duas opções e escolhe o valor máximo entre elas:
-
-  1. Não levar A: dp[0][w]
-  2. Levar A: 4 + dp[0][w - 2]
-
-Resultado da tabela até o item A:
-
-| Item | i | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
-| ---: | -: | ----: | ----: | -----: | ----: | ----: | ----: |
-|    - | 0 |     0 |     0 |      0 |     0 |     0 |     0 |
-|    A | 1 |     0 |     0 |      4 |     4 |     4 |     4 |
-|    B | 2 |     0 |       |        |       |       |       |
-|    C | 3 |     0 |       |        |       |       |       |
-
-* **Até o Item B:**
-
-Agora, para cada w:
-
-- Se w < 3 → não cabe B → mantém valor de cima
-- Se w ≥ 3 → compara:
-
-  1. Não levar B: dp[1][w]
-  2. Levar B: 5 + dp[1][w - 3]
-
-Resultado da tabela até o item B:
-
-| Item | i | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
-| ---: | -: | ----: | ----: | -----: | ----: | ----: | ----: |
-|    - | 0 |     0 |     0 |      0 |     0 |     0 |     0 |
-|    A | 1 |     0 |     0 |      4 |     4 |     4 |     4 |
-|    B | 2 |     0 |     0 |      4 |     5 |     5 |     9 |
-|    C | 3 |     0 |       |        |       |       |       |
-
-Vamos ver se você entendeu? Tente fazer a construção até o Item C.
+Você precisaria recalcular tudo ou seria possível reaproveitar algum cálculo anterior?
 
 ::: Gabarito
-
-Repetimos o mesmo processo para cada w:
-
-- Se w < 4 → não cabe C → repete valor de cima
-- Se w ≥ 4 → compara:
-
-  1. Não levar C: dp[2][w]
-  2. Levar C: 6 + dp[2][w - 4]
-
-Resultado da tabela até o Item C:
-
-| Item | i | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
-| ---: | -: | ----: | ----: | -----: | ----: | ----: | ----: |
-|    - | 0 |     0 |     0 |      0 |     0 |     0 |     0 |
-|    A | 1 |     0 |     0 |      4 |     4 |     4 |     4 |
-|    B | 2 |     0 |     0 |      4 |     5 |     5 |     9 |
-|    C | 3 |     0 |     0 |      4 |     5 |     6 |     9 |
-
-A célula dp[3][5] contém o valor 9, que é o maior valor possível para uma mochila de 5kg com esses 3 itens.
-
+Se já sabemos a melhor solução para 3kg e 2 itens, podemos aproveitar esse resultado para resolver o novo problema. Afinal, estamos só adicionando mais uma opção à decisão.
 :::
 
 ???
 
-Ok, nós construímos toda a tabela `md dp` com programação dinâmica e descobrimos qual é o valor máximo que conseguimos carregar na mochila — ele estará na célula `md dp[n][w]`.
+É exatamente essa a ideia por trás da programação dinâmica: guardar os resultados de subproblemas menores para reutilizá-los em problemas maiores. Ela parte do princípio de que problemas grandes podem ser resolvidos a partir de subproblemas menores. 
+
+Se a ideia é reaproveitar subsoluções, precisamos de uma estrutura que nos permita guardar os melhores resultados parciais. Para isso, vamos montar uma **tabela dinâmica**. Essa técnica consiste em preencher na tabela, para cada combinação de item e capacidade, qual o melhor valor possível até aquele ponto. Assim, vamos construindo a solução ideal aos poucos, sem precisar recalcular.
+
+**Como é o formato da tabela?**
+
+Vamos imaginar o problema onde temos a mochila com **`md capacidade máxima = W`** e devemos escolher entre  **`md n itens`**. Para construir a tabela `md dp` precisamos saber quantas linhas e quantas colunas devemos ter.
+
+??? Checkpoint
+Se temos  **`md n itens`**, e a capacidade máxima da mochila é **`md W`**, quantas combinações diferentes de "itens usados" e "capacidade disponível" precisamos analisar? Ou seja, qual o número total de células da tabela?
+::: Dica 1
+Pense em quantas linhas e em quantas colunas essa tabela deve ter para representar todas as combinações. Se ainda não tiver ficado claro, veja a Dica 2.
+:::
+::: Dica 2
+Tente pensar em "itens" como elementos das linhas da tabela, e as "capacidades" da mochila como elementos das colunas.
+:::
+
+::: Gabarito
+Precisamos analisar todas as combinações possíveis entre:
+
+* o número de itens considerados (de 0 até n, ou seja, n + 1 opções);
+
+* e os valores possíveis de capacidade (de 0 até W, ou seja, W + 1 opções).
+
+Portanto, o total de combinações é **`md (n+1)x(W+1)`**.
+
+| Item | w = 0 | w = 1 | w =  2 | ...   | w = W |w = W + 1|
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    0 |       |       |        |       |       |       |
+|    1 |       |       |        |       |       |       |
+|  ... |       |       |        |       |       |       |
+|    n |       |       |        |       |       |       |
+|n + 1 |       |       |        |       |       |       |
+
+:::
+???
+
+??? Checkpoint
+
+Por que começamos a contar a partir do 0? Por exemplo, linha 0 (nenhum item), coluna 0 (capacidade zero).
+
+::: Gabarito
+Porque precisamos considerar também os casos base:
+
+* Nenhum item escolhido ainda
+* Mochila com capacidade zero
+
+Esses casos ajudam a construir a tabela desde o início.
+:::
+???
+
+Com isso, em nossa tabela `md dp` temos:
+
+* `md n + 1` linhas (uma linha para cada item, de 0 a n);
+* `md W + 1` colunas (uma coluna para cada capacidade da mochila, de 0 a W).
+* Cada célula `md dp[i][w]` armazena o máximo valor possível da mochila usando **os primeiros `md i` itens** e uma **capacidade `md w`**.
+
+??? Checkpoint
+Qual o **valor máximo** na primeira linha e primeira coluna da tabela?
+::: Gabarito
+
+Tudo deverá ser zero!
+* Se não temos itens (linha 0), o valor da mochila é zero.
+* Se a capacidade da mochila é zero (coluna 0), também não dá para levar nada.
+
+| Item | w = 0 | w = 1 | w =  2 | ...   | w = W |w = W + 1|
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    0 |   0   |   0   |   0    |   0   |    0  |  0    |
+|    1 |   0   |       |        |       |       |       |
+|  ... |   0   |       |        |       |       |       |
+|    n |   0   |       |        |       |       |       |
+|n + 1 |   0   |       |        |       |       |       |
+:::
+???
+
+**Como preencher a tabela?**
+
+Vamos seguir com um exemplo prático. Suponha que temos os seguintes itens e uma mochila com capacidade máxima de 5kg:
+
+| Item | Peso | Valor |
+| ---- | ---- | ----- |
+| A    | 2    | 3     |
+| B    | 3    | 5     |
+| C    | 4    | 9     |
+
+Para cada item, temos duas opções:
+1. Levar o item;
+2. Não levar o item;
+
+??? Checkpoint
+Construa a tabela considerando os itens e a capacidade proposta. Depois preencha os valores da primeira linha e da primeira coluna.
+::: Gabarito
+Sua tabela deve ter ficado assim:
+
+| Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    - |     0 |     0 |      0 |     0 |     0 |     0 |
+|    A |     0 |       |        |       |       |       |
+|    B |     0 |       |        |       |       |       |
+|    C |     0 |       |        |       |       |       |
+:::
+???
+
+Já conhecemos o formato da tabela, agora devemos preencher a tabela com o valor máximo que podemos ter na mochila considerando os `md i` primeiros itens e a capacidade `md w`
+
+??? Checkpoint
+
+Analise a linha do item A. Se a mochila tiver capacidade 1kg, dá para levar o item A? Qual será o valor da mochila nesse caso?
+
+::: Gabarito
+Não é possível levar o item. O item A pesa 2kg e não cabe em mochilas de 0kg ou 1kg. O valor da mochila será zero.
+:::
+???
+
+Se a mochila tiver capacidade de 2kg ou mais, temos duas opções:
+
+* Levar o item; 
+* Não levar o item.
+
+??? Checkpoint
+Se o objetivo do problema é maximizar o valor na mochila de capacidade w, em que devemos basear a decisão de levar ou não levar o item?
+::: Gabarito
+Se o **valor** da mochila *aumentar*, devemos *levar* o item. Do contrário, devemos manter a combinação anterior e não levar o item.
+:::
+???
+
+Para o item A, o valor da mochila aumenta se levarmos o item. Portanto teríamos a seguinte construção:
+
+| Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    - |     0 |     0 |      0 |     0 |     0 |     0 |
+|    A |     0 |     0 |      3 |     3 |     3 |     3 |
+|    B |     0 |       |        |       |       |       |
+|    C |     0 |       |        |       |       |       |
+
+??? Checkpoint
+Agora preencha a linha da tabela para o item B. Lembre-se que você está considerando o melhor valor usando os itens *até o item B*.
+::: Gabarito
+Sua tabela deve ter ficado assim:
+
+| Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    - |     0 |     0 |      0 |     0 |     0 |     0 |
+|    A |     0 |     0 |      3 |     3 |     3 |     3 |
+|    B |     0 |     0 |      3 |     5 |     5 |     8 |
+|    C |     0 |       |        |       |       |       |
+:::
+???
+
+
+??? Checkpoint
+Por que copiamos o valor da célula acima quando o item B não coube?
+::: Gabarito
+Porque não podemos levar esse item, então mantemos a melhor solução com os itens anteriores.
+:::
+???
+
+Para o item B, você deve ter feito o seguinte raciocínio:
+
+- Para a capacidade `md w = 2` somente o item A cabe, então você copiou o valor da célula acima. 
+- Para as capacidades `md w = 3` e `md w = 4` você deve ter comparado o valor de A e o valor de B, e escolhido levar o item B, que dava o maior valor.
+- Para a capacidade `md w = 5` você percebeu que tinha espaço para levar o item B e que sobrava espaço para levar o item A. Ou seja, você somou o valor do item B com o melhor valor possível para o espaço restante.
+
+??? Checkpoint
+Para finalizar essa tabela, faça a implementação para a linha do item C.
+::: Gabarito
+Sua tabela deve ter ficado assim:
+
+| Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    - |     0 |     0 |      0 |     0 |     0 |     0 |
+|    A |     0 |     0 |      3 |     3 |     3 |     3 |
+|    B |     0 |     0 |      3 |     5 |     5 |     8 |
+|    C |     0 |     0 |      3 |     5 |     9 |     9 |
+:::
+???
+
+A partir da construção da tabela, identificamos que o valor máximo que podemos ter em uma mochila de `md w = 5` considerando os itens A, B e C é **`md 9`**.
+
+??? Checkpoint
+Analise a tabela e tente descobrir se é possível generalizar em qual célula teremos o máximo valor possível para `md n itens` e `md capacidade W`
+::: Dica
+Analise a construção que você fez para a linha anterior da tabela (linha do item B). Onde estava o valor máximo?
+:::
+::: Gabarito
+O valor máximo estará na célula inferior direita. Ou seja, para `md n+1` itens (de 0 a n) e `md W+1` capacidades (de 0 a W), o **valor ótimo** estará na celula `md dp[n][W]`
+:::
+???
+
+**Regra geral para preencher a tabela**
+
+Até aqui, você preencheu linha por linha da tabela, tomando decisões baseadas em dois cenários:
+
+1. Cenário I: Não levar o item atual → copiando o valor da célula acima.
+2. Cenário II: Levar o item atual → somando o valor dele com a melhor solução para o espaço restante.
+
+Para esses dois cenários, podemos representar capa um por uma fórmula que compara as células da tabela:
+
+1. Cenário I: `md dp[i][w] = dp[i-1][w]`;
+2. Cenário II: `md dp[i][w] = valor[i] + dp[i-1][w - peso[i]]`.
+
+Por fim, para tomar a decisão de levar ou não levar o item, você comparou qual cenário daria o *maior* valor. 
+
+Essa lógica pode ser expressa de forma geral pela seguinte fórmula:
+
+$$
+dp[i][w]=max(dp[i−1][w], valor[i] + dp[i−1][w−peso[i]])
+$$
+
+- Note que se o item não cabe na mochila, não comparamos `md dp[i−1][w − peso[i]]` (isso estaria fora do range da tabela). Nesse caso, consideramos `md dp[i][w] = dp[i−1][w]`.
+
+- Além disso, é importante destacar que, para a linha i, consideramos **todos os itens até o item i**, ou seja, essa solução considera **subconjuntos de itens**.
+
+**Reconstrução da solução ótima**
+
+Ok, nós construímos toda a tabela `md dp` com programação dinâmica e descobrimos qual é o valor máximo que conseguimos carregar na mochila — e ele estará na célula **`md dp[n][w]`**.
+
+| Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
+| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
+|    - |     0 |     0 |      0 |     0 |     0 |     0 |
+|    A |     0 |     0 |      3 |     3 |     3 |     3 |
+|    B |     0 |     0 |      3 |     5 |     5 |     8 |
+|    C |     0 |     0 |      3 |     5 |     9 |     9 |
 
 Mas... quais itens exatamente compõem essa solução?
 
-Para descobrir isso, usamos uma técnica chamada **backtracking**, que nada mais é do que voltar pela tabela e analisar as decisões que foram tomadas ao longo do caminho.
+Para descobrir isso, vamos fazer o caminho inverso na tabela, analisando as decisões que levaram até esse valor.
 
-**Backtracking**
+??? Checkpoint
+Comece partindo da última célula da tabela (`md dp[3][5] = 9`). Com que célula você deve comparar o valor para descobrir se o item C foi escolhido? Como saber se o item foi escolhido?
+::: Gabarito
+Devemos comparar o valor de `md dp[3][5] = 9` com a célula acima (`md dp[2][5] = 8`). Como o valor mudou, sabemos que C foi escolhido. 
+???
+
+
+###########################################################
+Correção implementada até aqui
+
+##########################################################
 
 Partimos da última célula da tabela, `md dp[n][w]`, e vamos subindo, linha por linha. A cada passo, comparamos o valor atual com o valor logo acima:
 
