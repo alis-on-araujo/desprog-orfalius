@@ -529,371 +529,156 @@ Apesar de ser um pouco mais trabalhoso de implementar, esse método tem uma efic
 3. Sempre encontra a melhor combinação possível, ou seja, o valor máximo.
 4. Tem complexidade de tempo e memória *O(n⋅W)*, o que é suficiente para a maioria dos casos práticos. Para valores muito grandes, existem otimizações que reduzem o uso de memória — mas o raciocínio por trás continua sendo o mesmo.
 
-Implementações do Algoritmo da Mochila Binária
---------------------------------
 
-A partir daqui, vamos ver como transformar a lógica da mochila binária em **código em linguagem C**, usando duas estratégias:
+??? Desafio: implemente o algoritmo da mochila binária em C (bottom-up)
 
-- Uma abordagem **recursiva com memorização** (top-down), que reaproveita os resultados já calculados para evitar recomputações;
-- Uma abordagem **iterativa com tabela (bottom-up)**, que constrói a solução a partir dos menores subproblemas.
+    Transforme a teoria em prática! A tarefa é escrever um programa <strong>autocontido</strong> em C
+    que resolva a mochila binária por programação dinâmica iterativa.
+    Siga as etapas abaixo e <em>só depois</em> abra o gabarito para conferir.
 
-Ambas chegam à mesma resposta final, mas têm estruturas e estilos diferentes de implementação. Vamos começar pela versão recursiva!
+    **Especificações do desafio:**  
 
-Para realizar a implementação, primeiro precisamos deixar claro quais são as entradas do problema:
+    Escreva um programa **C** que resolva a mochila binária por programação
+    dinâmica iterativa.  
+    Você deverá:
 
-**Entradas**
-- n: número total de itens disponíveis;
+    1. Modelar o problema com a `md struct` abaixo  
+       (guarda capacidade `md w`, quantidade `md n`, vetores `md peso/valor`
+       e a matriz **DP**):
+       ```c
+       typedef struct {
+           int w;           /* capacidade da mochila                    */
+           int n;           /* número total de itens                    */
+           int *peso;       /* vetor de pesos (tamanho n)               */
+           int *valor;      /* vetor de valores (tamanho n)             */
+           int **dp;        /* tabela DP (n+1) × (w+1)                  */
+       } knapsack_problem;
+       ```
+    2. Implementar as funções:
+       - `md init_dp_zeros` – zera toda a matriz `md dp`;  
+       - `md knapsack_init` – aloca/ copia vetores e matriz;  
+       - `md knapsack_solve` – preenche `md dp[i][j]` comparando não-incluir × incluir;  
+       - `md knapsack_reconstruct` – preenche `md chosen[i]` via backtracking;  
+       - `md knapsack_free` – libera TODA a memória.
+    3. Testar com o caso:
 
-- peso[n]: vetor com o peso de cada item;
+       Entrada:
+       ```c
+       int peso[]  = {2, 3, 4, 5, 3};
+       int valor[] = {5, 10, 12, 8, 7};
+       int n = 5, w = 10;
+       ```
+       Saída esperada:
+       ```c
+       Valor ótimo: 29
+       Itens escolhidos: 1 2 4
+       ```
+    Para Compilar utilize:  
+       ```bash
+       gcc -Wall -Wextra -std=c11 knapsack.c -o knapsack
+       ```
 
-- valor[n]: vetor com o valor de cada item;
+    ::: Gabarito
 
-- w: capacidade máxima da mochila (peso total que ela suporta).
+    ```c
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
 
-Cada item pode ser levado por completo ou não levado — não há divisões parciais (por isso o problema é chamado de mochila binária ou 0/1 knapsack). É importante notar que o peso[i] corresponde ao item i que possui valor[i]. 
+    typedef struct {
+        int w, n;
+        int *peso, *valor;
+        int **dp;
+    } knapsack_problem;
 
-**Saídas esperadas**
-- O maior valor total que pode ser carregado sem ultrapassar a capacidade da mochila;
-- Quais itens compõem essa solução ótima (essa saída é opcional, é o nosso *backtracking*)
-
-## Implementação Recursiva Top‑Down (Memo)
-
-*Recursão com cache (memoization) implementada com tabela 2D em C*
-
-A abordagem top-down com memorização segue o raciocínio natural da recursão: para resolver um problema grande, vamos resolvendo versões menores dele e guardando os resultados já calculados para evitar recomputações.
-
-No contexto da mochila binária, queremos responder: **Qual o maior valor que posso obter considerando os itens de índice i em diante, com p quilos ainda disponíveis na mochila?**
-
-Chamaremos essa função de `md solve(i, p)`. A cada chamada, ela tenta duas possibilidades:
-
-- Ignorar o item i e seguir com os próximos;
-
-- Incluir o item i, se ele couber, e somar seu valor ao resultado da submochila restante.
-
-Como muitos desses subproblemas se repetem, usamos uma tabela dp[i][p] para guardar as respostas já calculadas. Um vetor vis[i][p] nos ajuda a saber se já resolvemos esse estado antes.
-
-**Entradas esperadas da função solve(i, p)**
-- `md i`: índice do item atual (de 1 até n, inclusive);
-
-- `md p`: peso restante da mochila (capacidade ainda disponível);
-
-**Saída esperada**
-- Retorna o maior valor total possível que pode ser obtido considerando os itens de i até n, respeitando a capacidade restante p.
-
-??? Checkpoint
-O que é esperado no retorno de `md solve(1, 10)`? 
-:::
-Responde qual o maior valor possível ao considerar todos os itens a partir do item 1, com 10kg de capacidade restante.
-:::
-???
-
-
-Veja o esqueleto em pseudocódigo:
-
-```text
-função solve(i, p):
-    // Caso base: já passamos do último item
-    se i > n:
-        retorna 0
-
-    // Se já calculamos esse estado, retornamos o valor salvo
-    se vis[i][p] == verdadeiro:
-        retorna dp[i][p]
-
-    // Marcamos esse estado como visitado
-    vis[i][p] ← verdadeiro
-
-    // Inicialmente, testamos a opção de NÃO levar o item i
-    melhor_valor ← solve(i + 1, p)
-
-    // Se o item i couber na mochila, testamos também levar ele
-    se p ≥ peso[i]:
-        valor_com_item ← solve(i + 1, p - peso[i]) + valor[i]
-        melhor_valor ← máximo(melhor_valor, valor_com_item)
-
-    // Guardamos a melhor resposta possível para esse estado
-    dp[i][p] ← melhor_valor
-
-    retorna melhor_valor
-```
-
-??? Checkpoint
-Reflita por que `md vis[i][p]` impede que o algoritmo gere $2^n$ chamadas.
-
-::: Gabarito
-Cada par `md (i,p)` é guardado após o primeiro cálculo; as chamadas seguintes apenas retornam o valor salvo, evitando recomputação de subárvores.
-:::
-???
-
-**Declarações em C**
-
-Agora vamos à implementação do código em C:
-
-```c
-#define MAXN 110
-#define MAXP 100010
-
-int  w[MAXN], v[MAXN];
-long long dp[MAXN][MAXP];
-char vis[MAXN][MAXP];
-int n;
-```
-
-**Função `md solve`**
-
-```c
-long long solve(int i, int p){
-    if(i == n + 1) return 0;
-    if(vis[i][p])  return dp[i][p];
-
-    vis[i][p] = 1;
-    long long melhor_valor = solve(i+1, p);
-    if(p >= w[i]){
-        long long valor_com_item = solve(i+1, p - w[i]) + v[i];
-        if(valor_com_item > melhor_valor)
-            melhor_valor = valor_com_item;
+    /* -------- utilitário ---------------------------------------------- */
+    static void init_dp_zeros(int **dp, int rows, int cols) {
+        for (int i = 0; i < rows; ++i)
+            memset(dp[i], 0, cols * sizeof(int));
     }
-    return dp[i][p] = melhor_valor;
-}
-```
 
-Essa função retorna o melhor valor possível para cada estado (i, p), salvando o resultado em dp e marcando vis como visitado, o que permite reutilizar as respostas em futuras chamadas recursivas.
+    /* -------- inicialização ------------------------------------------- */
+    void knapsack_init(knapsack_problem *kp,
+                    int n, int w,
+                    const int *peso_in, const int *valor_in) {
+        kp->n = n; kp->w = w;
 
-??? Checkpoint
-Qual a complexidade de **tempo** e **espaço**?
+        kp->peso  = malloc(n * sizeof(int));
+        kp->valor = malloc(n * sizeof(int));
+        for (int i = 0; i < n; ++i) {
+            kp->peso[i]  = peso_in[i];
+            kp->valor[i] = valor_in[i];
+        }
 
-::: Gabarito
-Tempo $O(nw)$ porque cada `md (i,p)` é avaliado uma vez.
-Espaço $O(nw)$ para guardar `md dp` e `md vis`.
-:::
-???
- 
-!!! Aviso  
-Usamos `md long long` para garantir que os valores somados em `md dp` não excedam o limite de um `md int` ou  `md long`. Isso é especialmente importante quando os valores dos itens são grandes ou quando há muitos itens na entrada.  
-!!!
+        kp->dp = malloc((n + 1) * sizeof(int *));
+        for (int i = 0; i <= n; ++i)
+            kp->dp[i] = malloc((w + 1) * sizeof(int));
 
-## Implementação Bottom‑Up (Tabela 2‑D)
+        init_dp_zeros(kp->dp, n + 1, w + 1);
+    }
 
-Na abordagem **bottom-up**, resolvemos o problema de forma iterativa, preenchendo uma tabela `ms dp[i][w]` onde cada entrada representa o **maior valor possível com os primeiros `md i` itens e capacidade `md w`**. A ideia é ir **acumulando soluções de subproblemas menores**, sem repetir nenhum cálculo.
-
-### Estrutura fundamental
-
-```c
-typedef struct {
-    int w;           // capacidade da mochila
-    int n;           // número total de itens
-    int *peso;       // vetor de pesos
-    int *valor;      // vetor de valores
-    int **dp;        // tabela dp de (n+1) x (w+1)
-} knapsack_problem;
-```
-
-A `md struct` reúne todos os dados do problema e a matriz `md (n+1) × (w+1)` que será preenchida.*
-
-??? Checkpoint
-Quanto de memória a matriz ocupa se `md n = 200` e `md w = 5000`?
-
-::: Gabarito
-`md 201 × 5001 × 4` bytes ≈ **4,02 MB**.
-:::
-???
-
-**Inicialização da tabela**
-
-Antes de preencher a tabela, é importante inicializar todos os valores com zero, já que:
-
-- Uma mochila vazia (capacidade 0) não pode levar nada;
-
-- Nenhum item (linha 0) leva a valor 0 para qualquer capacidade.
-
-??? Exercício
-Implemente `md init_dp_zeros(int **dp, int rows, int cols)` para zerar todos os elementos da matriz.
-
-::: Gabarito
-
-```c
-static void init_dp_zeros(int **dp, int rows, int cols){
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
-            dp[i][j] = 0; // inicializa célula por célula
-        };
-    };
-}
-```
-Você tambem pode usar `md memset` para inicializar uma sequência de dados com zeros.
-:::
-???
-
-**Preenchendo a tabela dinâmica**
-
-Agora que a matriz `md dp` foi alocada e inicializada com zeros, vamos preenchê-la **de baixo para cima**, seguindo o raciocínio da programação dinâmica.
-
-A ideia é iterar por cada item `md i` e cada capacidade `md j` da mochila, e decidir:
-
-- Se o item `md i` **não for incluído**: copiamos o valor da linha anterior `md dp[i-1][j]`;
-- Se o item `md i` **couber na mochila** e for incluído: somamos seu valor `md valor[i-1]` com o valor da mochila restante `md dp[i-1][j - peso[i-1]]`;
-- Salvamos o **melhor dos dois valores** em `md dp[i][j]`.
-
-```c
-void knapsack_solve(knapsack_problem *kp){
-    for (int i = 1; i <= kp->n; ++i){
-        for (int j = 0; j <= kp->w; ++j){
-            int melhor_valor = kp->dp[i - 1][j]; // não leva o item i
-
-            if (kp->peso[i - 1] <= j){
-                int valor_com_item = kp->dp[i - 1][j - kp->peso[i - 1]] + kp->valor[i - 1];
-                if (valor_com_item > melhor_valor)
-                    melhor_valor = valor_com_item; // leva o item i
+    /* -------- DP bottom-up -------------------------------------------- */
+    void knapsack_solve(knapsack_problem *kp) {
+        for (int i = 1; i <= kp->n; ++i) {
+            for (int j = 0; j <= kp->w; ++j) {
+                int melhor = kp->dp[i - 1][j];            /* não inclui */
+                if (kp->peso[i - 1] <= j) {
+                    int com = kp->dp[i - 1][j - kp->peso[i - 1]]
+                            + kp->valor[i - 1];
+                    if (com > melhor) melhor = com;       /* inclui     */
+                }
+                kp->dp[i][j] = melhor;
             }
-
-            kp->dp[i][j] = melhor_valor;
         }
     }
-}
-```
 
-Para cada item `md i`, a linha `md i` deriva da linha `md i-1`: se o item cabe, comparamos incluir com não incluir; caso contrário, copiamos o valor anterior.
-
-**Reconstrução do subconjunto**
-
-Depois que a tabela dinâmica dp estiver preenchida, o próximo passo é descobrir quais itens compõem a solução ótima.
-
-Para isso, percorremos a tabela de baixo para cima. Em cada linha i, comparamos`md dp[i][j]` com `md dp[i-1][j]`:
-
-- Se os valores forem iguais → o item i-1 não foi incluído;
-
-- Se os valores forem diferentes → o item i-1 foi incluído, então subtraímos seu peso da capacidade restante.
-
-Essa técnica é o *backtracking na tabela*.
-
-```c
-void knapsack_reconstruct(const knapsack_problem *kp, int *chosen){
-    int j = kp->w;
-    for (int i = kp->n; i >= 1; --i){
-        if (kp->dp[i][j] != kp->dp[i - 1][j]){
-            chosen[i - 1] = 1;             // item foi escolhido
-            j -= kp->peso[i - 1];          // atualiza capacidade restante
-        } else {
-            chosen[i - 1] = 0;             // item não foi escolhido
+    /* -------- reconstrução -------------------------------------------- */
+    void knapsack_reconstruct(const knapsack_problem *kp, int *chosen) {
+        int j = kp->w;
+        for (int i = kp->n; i >= 1; --i) {
+            if (kp->dp[i][j] != kp->dp[i - 1][j]) {
+                chosen[i - 1] = 1;
+                j -= kp->peso[i - 1];
+            } else {
+                chosen[i - 1] = 0;
+            }
         }
     }
-}
-```
 
-A descida da última linha até a primeira identifica quais itens alteraram o valor da solução — esses são os selecionados. 
-O vetor `md chosen[i]` indica com 1 se o item i foi incluído na mochila, ou 0 caso contrário.
-
-**Inicialização do problema com malloc**
-
-A seguir está a função knapsack_init, responsável por:
-
-- Copiar os vetores de entrada (peso e valor);
-
-- Alocar a matriz `md dp[n+1][w+1]` com malloc;
-
-- Zerar a matriz, chamando init_dp_zeros().
-
-```C
-void knapsack_init(knapsack_problem *kp, int n, int w, int *peso, int *valor){
-    kp->n = n;
-    kp->w = w;
-
-    // Copiando os vetores de peso e valor
-    kp->peso = malloc(n * sizeof(int));
-    kp->valor = malloc(n * sizeof(int));
-    for (int i = 0; i < n; ++i){
-        kp->peso[i] = peso[i];
-        kp->valor[i] = valor[i];
+    /* -------- liberação ----------------------------------------------- */
+    void knapsack_free(knapsack_problem *kp) {
+        for (int i = 0; i <= kp->n; ++i) free(kp->dp[i]);
+        free(kp->dp);
+        free(kp->peso);
+        free(kp->valor);
     }
 
-    // Alocando a matriz dp (n+1 linhas por w+1 colunas)
-    kp->dp = malloc((n + 1) * sizeof(int *));
-    for (int i = 0; i <= n; ++i){
-        kp->dp[i] = malloc((w + 1) * sizeof(int));
+    /* -------- demonstração -------------------------------------------- */
+    int main(void) {
+        int peso[]  = {2, 3, 4, 5, 3};
+        int valor[] = {5, 10, 12, 8, 7};
+        int n = 5, w = 10;
+
+        knapsack_problem kp;
+        knapsack_init(&kp, n, w, peso, valor);
+        knapsack_solve(&kp);
+
+        int *chosen = calloc(n, sizeof(int));
+        knapsack_reconstruct(&kp, chosen);
+
+        printf("Valor ótimo: %d\n", kp.dp[n][w]);
+        printf("Itens escolhidos:");
+        for (int i = 0; i < n; ++i)
+            if (chosen[i]) printf(" %d", i);
+        printf("\n");
+
+        knapsack_free(&kp);
+        free(chosen);
+        return 0;
     }
+    :::
 
-    // Inicializa a matriz com zeros
-    init_dp_zeros(kp->dp, n + 1, w + 1);
-}
-```
-**Liberação de memória**
-
-Para evitar vazamentos de memória, lembre-se de liberar tudo que foi alocado dinamicamente:
-
-```C
-void knapsack_free(knapsack_problem *kp){
-    for (int i = 0; i <= kp->n; ++i)
-        free(kp->dp[i]);
-    free(kp->dp);
-    free(kp->peso);
-    free(kp->valor);
-}
-```
-
-**Função `md main` de demonstração**
-
-```c
-int main(void){
-    int peso[] = {2, 3, 4, 5, 3};     // pesos dos itens
-    int valor[] = {5, 10, 12, 8, 7};   // valores dos itens
-    int n = 5, w = 10;
-
-    // Inicializa o problema com vetores e capacidade
-    knapsack_problem kp;
-    knapsack_init(&kp, n, w, peso, valor);
-
-    // Preenche a tabela dinâmica
-    knapsack_solve(&kp);
-
-    // Vetor para guardar os itens escolhidos
-    int *chosen = malloc(n * sizeof(int));
-    for (int i = 0; i < n; ++i) {
-        chosen[i] = 0; //inicializa todos os valores com zero
-    };
-
-    knapsack_reconstruct(&kp, chosen);
-
-    // Mostra o valor ótimo encontrado
-    printf("Valor ótimo: %d\n", kp.dp[n][w]);
-
-    // Imprime os itens escolhidos
-    printf("Itens escolhidos: ");
-    for (int i = 0; i < n; ++i){
-        if (chosen[i]) printf("%d ", i);  // imprime o índice do item
-    }
-    printf("\n");
-
-    // Libera a memória alocada
-    knapsack_free(&kp);
-    free(chosen);
-
-    return 0;
-}
-
-```
-
-O programa monta o problema, resolve, reconstrói a lista de itens e mostra o valor ótimo.
-
-??? Checkpoint
-No exemplo acima, quais itens foram escolhidos e qual o peso total da mochila?
-
-Considere os seguintes dados de entrada, mostrados no exemplo da função `md main`:
-
-- Pesos: `md peso = {2, 3, 4, 5, 3}`
-- Valores: `md valor = {5, 10, 12, 8, 7}`
-- Capacidade da mochila: `md w = 10`
-
-:::
-Gabarito:
-
-Os itens escolhidos são `md chosen = [0, 1, 1, 0, 1]`, ou seja, os itens de índice 1, 2 e 4.
-
-- Pesos escolhidos: 3 + 4 + 3 = **10**
-- Valores escolhidos: 10 + 12 + 7 = **29**
-
-Portanto, o valor ótimo é `md 29`, e a mochila ficou cheia.
-:::
-???
+??? 
 
 Conclusão
 ----------
