@@ -254,13 +254,13 @@ Tudo deverá ser zero!
 * Se não temos itens (linha 0), o valor da mochila é zero.
 * Se a capacidade da mochila é zero (coluna 0), também não dá para levar nada.
 
-| Item | w = 0 | w = 1 | w =  2 | ...   | w = W |w = W + 1|
-| ---: | ----: | ----: | -----: | ----: | ----: | ----: |
-|    0 |   0   |   0   |   0    |   0   |    0  |  0    |
-|    1 |   0   |       |        |       |       |       |
-|  ... |   0   |       |        |       |       |       |
-|    n |   0   |       |        |       |       |       |
-|n + 1 |   0   |       |        |       |       |       |
+| Item | w = 0 | w = 1 | w =  2 | ...   | w = W |
+| ---: | ----: | ----: | -----: | ----: | ----: |
+|    0 |   0   |   0   |   0    |   0   |    0  |
+|    1 |   0   |       |        |       |       |
+|  ... |   0   |       |        |       |       |
+|    n |   0   |       |        |       |       |
+
 :::
 ???
 
@@ -279,7 +279,7 @@ Para cada item, temos duas opções:
 2. Não levar o item;
 
 ??? Checkpoint
-Construa a tabela considerando os itens e a capacidade proposta. Depois preencha os valores da primeira linha e da primeira coluna.
+Construa o esqueleto da tabela considerando os itens e a capacidade proposta. Depois, preencha os valores da primeira linha e da primeira coluna.
 ::: Gabarito
 Sua tabela deve ter ficado assim:
 
@@ -292,7 +292,7 @@ Sua tabela deve ter ficado assim:
 :::
 ???
 
-Já conhecemos o formato da tabela, agora devemos preencher a tabela com o valor máximo que podemos ter na mochila considerando os `md i` primeiros itens e a capacidade `md w`
+Já conhecemos o formato da tabela, agora devemos preencher a tabela com o valor máximo que podemos ter na mochila considerando os `md i` primeiros itens e cada capacidade `md w`.
 
 ??? Checkpoint
 
@@ -315,7 +315,7 @@ Se o **valor** da mochila *aumentar*, devemos *levar* o item. Do contrário, dev
 :::
 ???
 
-Para o item A, o valor da mochila aumenta se levarmos o item. Portanto teríamos a seguinte construção:
+Para o item A e capacidades `md w >= 2`, o valor da mochila aumenta se levarmos o item. Portanto teríamos a seguinte construção:
 
 | Item | w = 0 | w = 1 | w =  2 | w = 3 | w = 4 | w = 5 |
 | ---: | ----: | ----: | -----: | ----: | ----: | ----: |
@@ -325,7 +325,7 @@ Para o item A, o valor da mochila aumenta se levarmos o item. Portanto teríamos
 |    C |     0 |       |        |       |       |       |
 
 ??? Checkpoint
-Agora preencha a linha da tabela para o item B. Lembre-se que você está considerando o melhor valor usando os itens *até o item B*.
+Agora preencha a linha da tabela para o item B, de `md peso 3` e `md valor 5`. Lembre-se que você está considerando o melhor valor usando os itens *até o item B*.
 ::: Gabarito
 Sua tabela deve ter ficado assim:
 
@@ -353,7 +353,7 @@ Para o item B, você deve ter feito o seguinte raciocínio:
 - Para a capacidade `md w = 5` você percebeu que tinha espaço para levar o item B e que sobrava espaço para levar o item A. Ou seja, você somou o valor do item B com o melhor valor possível para o espaço restante.
 
 ??? Checkpoint
-Para finalizar essa tabela, faça a implementação para a linha do item C.
+Para finalizar essa tabela, faça a implementação para a linha do item C, de `md peso 4` e `md valor 9`.
 ::: Gabarito
 Sua tabela deve ter ficado assim:
 
@@ -385,7 +385,7 @@ Até aqui, você preencheu linha por linha da tabela, tomando decisões baseadas
 1. Cenário I: Não levar o item atual → copiando o valor da célula acima.
 2. Cenário II: Levar o item atual → somando o valor dele com a melhor solução para o espaço restante.
 
-Para esses dois cenários, podemos representar capa um por uma fórmula que compara as células da tabela:
+Para esses dois cenários, podemos representar cada um por uma fórmula que compara as células da tabela:
 
 1. Cenário I: `md dp[i][w] = dp[i-1][w]`;
 2. Cenário II: `md dp[i][w] = valor[i] + dp[i-1][w - peso[i]]`.
