@@ -102,17 +102,6 @@ A ideia central da abordagem recursiva é pensar em cada item como uma escolha: 
 
 Assim, para qualquer par (i, w), queremos saber qual o melhor valor possível. A cada etapa, retiramos um item dessa lista e analisamos as opções, quebrando o problema em pedaços menores.
 
-A equação recursiva que rege essa definição é:
-
-$$
-dp(i, w) = 
-\begin{cases}
-0, & \text{se } i = 0 \text{ ou } w = 0, \\
-dp(i-1, w), & \text{se } peso[i] > w, \\
-\max\Bigl(dp(i-1, w),\ valor[i] + dp(i-1,\, w - peso[i])\Bigr), & \text{caso geral}.
-\end{cases}
-$$
-
 Vamos analisar detalhadamente cada parte dessa construção. Antes de tudo, precisamos entender os cenários que encerram a recursão:
 
 - Não existem itens restantes para considerar.  
@@ -140,7 +129,7 @@ Se w = 0, ou seja, a capacidade da mochila esgotou-se, qual deve ser o valor de 
 
 ???
 
-Considere que ainda haja itens, mas que o item _i_ possua um peso maior do que a capacidade atual _w_. Nesse caso, não podemos sequer testar “levar” esse item — ele simplesmente não cabe. Portanto, o raciocínio recai totalmente sobre o subproblema que ignora o item _i_:
+Agora, pense em outro cenário, considere que ainda haja itens, mas que o item _i_ possua um peso maior do que a capacidade atual _w_. Nesse caso, não podemos sequer testar “levar” esse item — ele simplesmente não cabe. Portanto, o raciocínio recai totalmente sobre o subproblema que ignora o item _i_:
 
 Se _peso[i] > w_, então tomamos diretamente a decisão de não incluir o item _i_, e passamos a resolver o problema para (i−1, w).
 
@@ -179,6 +168,16 @@ Resolvemos dp(i−1, w − peso[i]), ou seja, consideramos os itens anteriores e
 
 ???
 
+Sintetizando os casos acima, podemos escrever nossa equação recursiva:
+
+$$
+dp(i, w) = 
+\begin{cases}
+0, & \text{se } i = 0 \text{ ou } w = 0, \\
+dp(i-1, w), & \text{se } peso[i] > w, \\
+\max\Bigl(dp(i-1, w),\ valor[i] + dp(i-1,\, w - peso[i])\Bigr), & \text{caso geral}.
+\end{cases}
+$$
 
 Até aqui, vimos que a recursão descreve com clareza todas as decisões envolvidas. Contudo, ao implementarmos esse modelo recursivo diretamente (sem qualquer otimização), entramos em um problema de **repetição de subproblemas**. Por exemplo, podemos calcular _dp(i−1, w − peso[i])_ várias vezes em ramos diferentes da recursão. Essa duplicação de esforço resulta em uma complexidade exponencial, tornando o método inviável para instâncias médias ou grandes.
 
