@@ -93,85 +93,107 @@ O número de combinações cresce exponencialmente. Por exemplo, para 30 itens, 
 
 Embora esse método não seja o mais adequado para resolver problemas maiores, ele nos ajuda a ter compreensão do funcionamento e da natureza do problema. A partir dessa visão geral, começamos a entender por que precisamos de algoritmos mais eficientes, que consigam chegar à melhor (ou uma boa) solução sem precisar testar todas as alternativas. A abordagem de força bruta é, portanto, um primeiro passo para avançarmos para estratégias mais inteligentes — e é isso que veremos a seguir!
 
-Método Guloso
---------------
+Visão Recursiva do Problema
+----------------------------
 
-O método **guloso** tenta resolver o problema fazendo a escolha que parece melhor naquele momento. Em vez de olhar todas as combinações possíveis (como a força bruta faz), o método guloso decide item por item, com base em um critério que parece vantajoso — a **importância** do item, medida pela razão entre valor e peso:
+A ideia central da abordagem recursiva é pensar em cada item como uma escolha: “vou levar este item ou não?”. Ao tomar essa decisão, criamos subproblemas menores que, somados, conduzem à solução ótima. Para formalizar, definimos:
+
+- **dp(i, w)**: valor máximo que podemos obter considerando apenas os primeiros _i_ itens, quando a capacidade restante da mochila é _w_.
+
+Assim, para qualquer par (i, w), queremos saber qual o melhor valor possível. A cada etapa, retiramos um item dessa lista e analisamos as opções, quebrando o problema em pedaços menores.
+
+A equação recursiva que rege essa definição é:
 
 $$
-I (importância) = \frac{valor}{peso}
+dp(i, w) = 
+\begin{cases}
+0, & \text{se } i = 0 \text{ ou } w = 0, \\
+dp(i-1, w), & \text{se } peso[i] > w, \\
+\max\Bigl(dp(i-1, w),\ valor[i] + dp(i-1,\, w - peso[i])\Bigr), & \text{caso geral}.
+\end{cases}
 $$
 
-A ideia é: se eu puder levar um item leve e muito valioso, talvez ele traga mais benefício do que um item pesado com valor baixo. Assim, ordenamos os itens com base nesse índice, e vamos colocando os que têm maior valor por peso (a *importância*) primeiro, até encher a mochila.
+Vamos analisar detalhadamente cada parte dessa construção. Antes de tudo, precisamos entender os cenários que encerram a recursão:
 
-Vamos ver um exemplo:
-
-Suponha que temos os seguintes itens, em uma mochila com capacidade de 15kg.
-
-| Item | Peso (Kg) | Valor | Importância (I) |
-| ---- | --------- | ----- | ---------------- |
-| A    | 5         | 10    | 2                |
-| B    | 4         | 40    | 10               |
-| C    | 6         | 30    | 5                |
-
-Seguimos o **passo a passo**:
-
-1. Ordenamos por importância: B (10), C (5), A (2);
-2. Adicionamos primeiro os itens de maior importância:
-
-   - Colocamos o item B (4kg)
-   - Depois o item C (6kg)
-   - Depois o item A (5kg)
-
-Ao final, teríamos:
-
-* Peso total: 4 + 6 + 5 = 15kg — mochila cheia!
-* Valor total: 40 + 30 + 10 = 80 -  valor máximo!
-
-Mas será que o método guloso sempre nos dá a melhor solução? Ou seja, será que sempre teremos o valor máximo que a mochila pode carregar?
+- Não existem itens restantes para considerar.  
+- A mochila não comporta mais nada, mesmo que ainda haja itens.
 
 ??? Checkpoint
 
-Você acha que o método guloso funcionaria para esse caso, com uma mochila de `md capacidade igual a 5kg`?
-
-| Item | Peso (kg) | Valor (R\$) | Valor/Peso |
-| ---- | --------- | ----------- | ---------- |
-| A    | 2         | 40          | 20         |
-| B    | 3         | 51          | 17         |
-| C    | 5         | 95          | 19         |
-
-::: Dica 1
-Siga o passo a passo, ordenando os itens pela importância. Depois adicione primeiro os itens mais importantes, até atingir a capacidade máxima.
-:::
-
-::: Dica 2
-Tente testar todas as combinações possíveis e veja se ele realmente escolheu a combinação que maximiza o valor que a mochila carrega.
-:::
+Quando i = 0, qual deve ser o valor de dp(i, w)?
 
 ::: Gabarito
-
-1. Calculamos a importância (razão entre valor e peso) e ordenamos:
-
-   - Item A: 40/2 = 20
-   - Item C: 95/5 = 19
-   - Item B: 51/3 = 17
-2. Adicionamos o **Item A** na mochila. Ele tem a maior importância e pesa 2Kg. Ainda sobra 3Kg. O Item C tem a segunda maior importância, mas não cabe, então adicionamos o **Item B**.
-
-Ao final, teríamos:
-
-* Peso: 2 + 3 = 5 - mochila cheia!
-* Valor Total: 40 + 51 =  91
-
-3. Testando as possibilidades, vemos que o **Item C** sozinho pesa *5Kg* e tem *valor 95*.
-
-Ou seja, o método *guloso* pegou o *Item A* por parecer mais "importante", mas perdeu a chance de pegar o *Item C*, que maximiza o valor carregado na mochila.
+0. Sem itens para selecionar, não há como agregar valor algum à mochila.
 :::
 
 ???
 
-Apesar de ser prático, o método guloso nem sempre encontra a melhor solução para o problema da mochila binária. Ele se baseia apenas na decisão que parece melhor no momento, sem considerar o impacto que essa escolha pode ter nas próximas. É como encher uma mala escolhendo primeiro o que parece mais valioso por quilo, mas esquecer de verificar se a melhor combinação caberia de outro jeito.
+Após fixar esse caso, considere que talvez ainda haja itens, mas a mochila esteja cheia até o limite.
 
-Na próxima abordagem, vamos ver como a programação dinâmica consegue garantir uma melhor solução para o problema da mochila binária.
+??? Checkpoint
+
+Se w = 0, ou seja, a capacidade da mochila esgotou-se, qual deve ser o valor de dp(i, w)?.
+
+::: Gabarito
+0. Quando a mochila não comporta mais nenhum peso, o valor que podemos carregar é zero, independentemente de quantos itens ainda existam.
+:::
+
+???
+
+Considere que ainda haja itens, mas que o item _i_ possua um peso maior do que a capacidade atual _w_. Nesse caso, não podemos sequer testar “levar” esse item — ele simplesmente não cabe. Portanto, o raciocínio recai totalmente sobre o subproblema que ignora o item _i_:
+
+Se _peso[i] > w_, então tomamos diretamente a decisão de não incluir o item _i_, e passamos a resolver o problema para (i−1, w).
+
+Isso significa que:
+
+Se _peso[i] > w_, então  
+$$dp(i, w) = dp(i-1, w).$$
+
+
+Quando o peso do item i é menor ou igual à capacidade disponível (_peso[i] ≤ w_), temos **duas alternativas**:
+
+- **Não levar o item i**: o valor total continua sendo o mesmo do subproblema sem esse item, ou seja, dp(i-1, w).  
+- **Levar o item i**: nesse caso, acrescentamos valor[i] ao valor máximo e reduzimos a capacidade para w − peso[i], passando a resolver dp(i-1, w − peso[i]).
+
+Formalmente:
+
+$$
+dp(i, w) = \max\bigl(dp(i-1, w),\ valor[i] + dp(i-1,\, w - peso[i])\bigr).
+$$
+
+Para escolher a melhor alternativa, comparamos:  
+- O valor que obtemos se **não levarmos** o item (dp(i−1, w))  
+- O valor que obtemos se **levamos** o item (valor[i] + dp(i−1, w − peso[i]))  
+
+O algoritmo recursivo simplesmente “percorre” essas escolhas até chegar aos casos-base que já discutimos.
+
+Antes de seguir, observe que, ao **incluir o item i**, a capacidade diminui e passamos a resolver o subproblema para (i−1, w − peso[i]).
+
+??? Checkpoint
+
+Se decidirmos **levar** o item i, qual subproblema estamos efetivamente resolvendo em seguida? Pense no que acontece com a capacidade.
+
+::: Gabarito
+Resolvemos dp(i−1, w − peso[i]), ou seja, consideramos os itens anteriores e uma capacidade reduzida em peso[i].
+:::
+
+???
+
+
+Até aqui, vimos que a recursão descreve com clareza todas as decisões envolvidas. Contudo, ao implementarmos esse modelo recursivo diretamente (sem qualquer otimização), entramos em um problema de **repetição de subproblemas**. Por exemplo, podemos calcular _dp(i−1, w − peso[i])_ várias vezes em ramos diferentes da recursão. Essa duplicação de esforço resulta em uma complexidade exponencial, tornando o método inviável para instâncias médias ou grandes.
+
+O que queremos é uma forma de “guardar” o resultado de cada subproblema à medida que o calculamos, para que não precisemos repetir o mesmo cálculo em outro ponto. É exatamente essa a essência da **Programação Dinâmica**.
+
+
+Todo o modelo recursivo pode ser “traduzido” para uma estrutura de **tabela bidimensional**. Nessa tabela, cada entrada `md dp[i][w]` guarda o valor do subproblema que definimos recursivamente.
+
+- As linhas (índices _i_) correspondem a quantos itens estamos considerando (de 0 até n),  
+- As colunas (índices _w_) correspondem às capacidades possíveis (de 0 até W).
+
+Dessa forma, em vez de recalcular repetidamente dp(i, w), basta consultar o valor armazenado em `md dp[i][w]`. Se não existir ainda, calculamos usando a equação recursiva, armazenamos o resultado na tabela e seguimos adiante. 
+
+A seguir, veremos como construir passo a passo essa tabela, preenchendo as células na ordem correta e mantendo as decisões recursivas claras em cada etapa.
+
 
 Programação Dinâmica (Tabela Dinâmica)
 ------------------------------------------
